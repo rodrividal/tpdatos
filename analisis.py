@@ -80,4 +80,5 @@ prepro_trips()
 
 tripsHora = trips.groupby("hour")
 tripsHora.count()["start_date"].plot(kind="bar")
+plt.title("Cantidad total de viajes por hora")
 plt.show()
