@@ -68,17 +68,14 @@ def trips_por_hora():
     plt.show()
 
 
-"""prepro_trips()
-prepro_weather()
+def graficar_trips_por_tempdia():
 
-tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-weather = weather[weather.zip_code == 94107]
-
-new = combinar_trips_weather(weather,tripsByDay)
-new.plot.scatter('max_temperature_f','trips',alpha=0.25,figsize=(12,8))
-plt.show()
-
-print(weather.isnull().sum())
-print(trips.isnull().sum())"""
+    tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
+    weather = weather[weather.zip_code == 94107]
+    new = combinar_trips_weather(weather,tripsByDay)
+    new.plot.scatter('max_temperature_f','trips',alpha=0.25,figsize=(12,8))
+    plt.show()
 
 
+prepro_trips()
+trips_por_hora()
