@@ -14,6 +14,7 @@ def prepro_trips():
     trips["date"] = pd.to_datetime(trips.start_date, format='%m/%d/%Y %H:%M')
     trips["month"] = trips["date"].apply(lambda x: x.month)
     trips["day"] = trips["date"].apply(lambda x: x.day)
+    trips["hour"] = trips["date"].apply(lambda x: x.hour)
     trips["year"] = trips["date"].apply(lambda x: x.year)
     trips["DATE"] = pd.to_datetime(trips[['year', 'month', 'day']], yearfirst=True)
     trips["trips"] = trips["day"].apply(lambda x: 1)
@@ -60,11 +61,10 @@ def cant_viajes_por_dia_semana():
 def combinar_trips_weather(weather, trips):
     return pd.merge(weather, trips, on="DATE", how="right")
 
-def trips_por_hora():
+#def trips_por_hora():
 
 
-"""
-prepro_trips()
+"""prepro_trips()
 prepro_weather()
 
 tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
@@ -75,9 +75,9 @@ new.plot.scatter('max_temperature_f','trips',alpha=0.25,figsize=(12,8))
 plt.show()
 
 print(weather.isnull().sum())
-print(trips.isnull().sum())
-"""
-#hola
-prepro_weather()
+print(trips.isnull().sum())"""
 prepro_trips()
-print(cant_viajes_por_dia_semana())
+
+tripsHora = trips.groupby("hour")
+tripsHora.count()["start_date"].plot(kind="bar")
+plt.show()
