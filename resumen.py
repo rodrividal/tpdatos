@@ -3,8 +3,8 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 
-weather = pd.read_csv('C:/Users/Agustin/Documents/Python/tp/weather.csv', low_memory=False)
-trips = pd.read_csv('C:/Users/Agustin/Documents/Python/tp/trip.csv', low_memory=False)
+weather = pd.read_csv('weather.csv', low_memory=False)
+trips = pd.read_csv('trip.csv', low_memory=False)
 
 #print(trips["duration"].max())
 
