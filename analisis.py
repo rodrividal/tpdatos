@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 
 plt.style.use('ggplot')
 
-weather = pd.read_csv('C:/Users/Agustin/Documents/Python/tp/weather.csv', low_memory=False)
-trips = pd.read_csv('C:/Users/Agustin/Documents/Python/tp/trip.csv', low_memory=False)
-stations = pd.read_csv('C:/Users/Agustin/Documents/Python/tp/station.csv', low_memory=False)
+weather = pd.read_csv('weather.csv', low_memory=False)
+trips = pd.read_csv('trip.csv', low_memory=False)
+stations = pd.read_csv('station.csv', low_memory=False)
 
 
 def prepro_trips():
