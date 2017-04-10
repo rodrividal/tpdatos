@@ -61,7 +61,11 @@ def cant_viajes_por_dia_semana():
 def combinar_trips_weather(weather, trips):
     return pd.merge(weather, trips, on="DATE", how="right")
 
-#def trips_por_hora():
+def trips_por_hora():
+    tripsHora = trips.groupby("hour")
+    tripsHora.count()["start_date"].plot(kind="bar")
+    plt.title("Cantidad total de viajes por hora")
+    plt.show()
 
 
 """prepro_trips()
@@ -76,9 +80,5 @@ plt.show()
 
 print(weather.isnull().sum())
 print(trips.isnull().sum())"""
-prepro_trips()
 
-tripsHora = trips.groupby("hour")
-tripsHora.count()["start_date"].plot(kind="bar")
-plt.title("Cantidad total de viajes por hora")
-plt.show()
+
