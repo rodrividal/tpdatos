@@ -77,6 +77,7 @@ plt.show()
 print(weather.isnull().sum())
 print(trips.isnull().sum())
 """
+#hola
 prepro_weather()
 prepro_trips()
 print(cant_viajes_por_dia_semana())
