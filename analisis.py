@@ -20,13 +20,25 @@ def prepro_trips():
     trips["trips"] = trips["day"].apply(lambda x: 1)
 
 
-def prepro_weather():
+def prepro_trips_con_lluvia():
+    # crea la columna date con tipo datetime y nuevas columnas para analizar despues
+    trips["date"] = pd.to_datetime(trips.start_date, format='%m/%d/%Y %H:%M')
+    trips["month"] = trips["date"].apply(lambda x: x.month)
+    trips["day"] = trips["date"].apply(lambda x: x.day)
+    trips["hour"] = trips["date"].apply(lambda x: x.hour)
+    trips["year"] = trips["date"].apply(lambda x: x.year)
+    trips["DATE"] = pd.to_datetime(trips[['year', 'month', 'day']], yearfirst=True)
+    trips["trips"] = trips["day"].apply(lambda x: 1)
+
+
+def prepro_weather_lluvia():
     weather["date"] = pd.to_datetime(weather.date, format="%m/%d/%Y")
     weather["month"] = weather["date"].apply(lambda x: x.month)
     weather["day"] = weather["date"].apply(lambda x: x.day)
     weather["year"] = weather["date"].apply(lambda x: x.year)
     weather['DATE'] = pd.to_datetime(weather[['year', 'month', 'day']], yearfirst=True)
     weather["max_temperature_f"] = weather["max_temperature_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["llueve"] = weather["precipitation_inches"].apply(lambda x: 1 if x > 0 else 0)
 
 
 def prepro_weather():
@@ -69,7 +81,6 @@ def trips_por_hora():
 
 
 def graficar_trips_por_tempdia():
-
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
     weather = weather[weather.zip_code == 94107]
     new = combinar_trips_weather(weather,tripsByDay)
@@ -77,5 +88,18 @@ def graficar_trips_por_tempdia():
     plt.show()
 
 
+def graficar_viajes_con_y_sin_lluvia():
+    prepro_weather_lluvia()
+    tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
+    #weatherNew = pd.DataFrame({"weather": weather.groupBy(["DATE"])}).reset_index()
+    #print tripsByDay
+    #print "---------------"
+    #print weatherNew<
+    #weatherNuevo = weather[weather.zip_code == 94107]
+    new = combinar_trips_weather(weather, tripsByDay)
+    new.groupby("llueve").count().plot(kind="bar")
+    plt.show()
+
+
 prepro_trips()
-trips_por_hora()
+graficar_viajes_con_y_sin_lluvia()
