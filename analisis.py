@@ -18,6 +18,7 @@ def prepro_trips():
     trips["year"] = trips["date"].apply(lambda x: x.year)
     trips["DATE"] = pd.to_datetime(trips[['year', 'month', 'day']], yearfirst=True)
     trips["trips"] = trips["day"].apply(lambda x: 1)
+    trips["recorrido"] = trips["start_station_name"] + " to " + trips["end_station_name"]
 
 
 def prepro_weather():
@@ -27,16 +28,8 @@ def prepro_weather():
     weather["year"] = weather["date"].apply(lambda x: x.year)
     weather['DATE'] = pd.to_datetime(weather[['year', 'month', 'day']], yearfirst=True)
     weather["max_temperature_f"] = weather["max_temperature_f"].apply(lambda x: (x - 32) / 1.8)
-
-
-def prepro_weather():
-    weather["date"] = pd.to_datetime(weather.date, format="%m/%d/%Y")
-    weather["month"] = weather["date"].apply(lambda x: x.month)
-    weather["day"] = weather["date"].apply(lambda x: x.day)
-    weather["year"] = weather["date"].apply(lambda x: x.year)
-    weather['DATE'] = pd.to_datetime(weather[['year', 'month', 'day']], yearfirst=True)
-    weather["max_temperature_f"] = weather["max_temperature_f"].apply(lambda x: (x - 32) / 1.8)
-
+    weather["llueve"] = weather["precipitation_inches"].apply(lambda x: 0 if x == 0.0 else 1)
+    weather["dias_lluvia"] = weather["precipitation_inches"].apply(lambda x: 1)
 
 def cant_viajes_por_mes():
     trips = trips["month"].value_counts(sort=False)
@@ -76,6 +69,16 @@ def graficar_trips_por_tempdia():
     new.plot.scatter('max_temperature_f','trips',alpha=0.25,figsize=(12,8))
     plt.show()
 
+def graficar_cantidad_dias_lluvia():
+    tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
+    weather = weather[weather.zip_code == 94107]
+    new = combinar_trips_weather(weather, tripsByDay)
+    dias = new.groupby("llueve").aggregate(sum)
+    dias.plot(kind = "bar", y=["trips"])
+    plt.show()
 
 prepro_trips()
 trips_por_hora()
+
+print(trips["recorrido"])
+print(trips.groupby(["recorrido"]))
