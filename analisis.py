@@ -79,6 +79,6 @@ def graficar_cantidad_dias_lluvia():
 
 prepro_trips()
 trips_por_hora()
-
+#rodrigay
 print(trips["recorrido"])
 print(trips.groupby(["recorrido"]))
