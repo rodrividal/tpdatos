@@ -7,6 +7,8 @@ plt.style.use('ggplot')
 weather = pd.read_csv('weather.csv', low_memory=False)
 trips = pd.read_csv('trip.csv', low_memory=False)
 stations = pd.read_csv('station.csv', low_memory=False)
+weather = weather[weather["zip_code"] == 94107]
+
 
 
 def prepro_trips():
@@ -28,8 +30,13 @@ def prepro_weather():
     weather["year"] = weather["date"].apply(lambda x: x.year)
     weather['DATE'] = pd.to_datetime(weather[['year', 'month', 'day']], yearfirst=True)
     weather["max_temperature_f"] = weather["max_temperature_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["precipitation_inches"] = pd.to_numeric(weather["precipitation_inches"], errors="coerce")
     weather["llueve"] = weather["precipitation_inches"].apply(lambda x: 0 if x == 0.0 else 1)
     weather["dias_lluvia"] = weather["precipitation_inches"].apply(lambda x: 1)
+
+
+prepro_weather()
+prepro_trips()
 
 def cant_viajes_por_mes():
     trips = trips["month"].value_counts(sort=False)
@@ -54,7 +61,7 @@ def cant_viajes_por_dia_semana():
 def combinar_trips_weather(weather, trips):
     return pd.merge(weather, trips, on="DATE", how="right")
 
-def trips_por_hora():
+def graficar_trips_por_hora():
     tripsHora = trips.groupby("hour")
     tripsHora.count()["start_date"].plot(kind="bar")
     plt.title("Cantidad total de viajes por hora")
@@ -71,14 +78,20 @@ def graficar_trips_por_tempdia():
 
 def graficar_cantidad_dias_lluvia():
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    weather = weather[weather.zip_code == 94107]
     new = combinar_trips_weather(weather, tripsByDay)
     dias = new.groupby("llueve").aggregate(sum)
-    dias.plot(kind = "bar", y=["trips"])
+    dias.plot(kind = "bar", y=["dias_lluvia"])
     plt.show()
 
-prepro_trips()
-trips_por_hora()
-#rodrigay
-print(trips["recorrido"])
-print(trips.groupby(["recorrido"]))
+def graficar_top_recorridos():
+    cantidad_de_recorridos = trips[["recorrido","trips"]]
+    cantidad_de_recorridos = cantidad_de_recorridos.groupby("recorrido").count()
+    ranking_recorridos = cantidad_de_recorridos.sort_values(by = "trips", ascending=False)[:10]
+    print(ranking_recorridos)
+    ranking_recorridos.plot(kind="bar")
+    plt.show()
+
+#def partir_weather():
+
+
+graficar_cantidad_dias_lluvia()
