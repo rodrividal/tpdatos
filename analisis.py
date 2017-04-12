@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
+import numpy as np
 
 plt.style.use('ggplot')
 
@@ -70,12 +71,25 @@ def graficar_trips_por_tempdia():
     new.plot.scatter('max_temperature_f','trips',alpha=0.25,figsize=(12,8))
     plt.show()
 
+
 def graficar_cantidad_dias_lluvia():
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
     new = combinar_trips_weather(weather, tripsByDay)
     dias = new.groupby("llueve").aggregate(sum)
     dias.plot(kind = "bar", y=["dias_lluvia"])
     plt.show()
+
+
+def graficar_viajes_segun_lluvias():
+    # df3 = pd.DataFrame(np.random.rand(500, 2), columns=['B', 'C']).cumsum()
+    # print df3
+    # df3['A'] = pd.Series(list(range(len(df3))))
+    # df3.plot(x='A', y='C')
+    # plt.show()
+    # df = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
+    # print df
+    dfw = pd.DataFrame({"weather": weather})
+    print dfw
 
 
 def graficar_top_recorridos():
@@ -86,9 +100,11 @@ def graficar_top_recorridos():
     ranking_recorridos.plot(kind="bar")
     plt.show()
 
+
 #def partir_weather():
 
 prepro_trips()
 prepro_weather()
-graficar_top_recorridos()
-
+#graficar_top_recorridos()
+#graficar_cantidad_dias_lluvia()
+graficar_viajes_segun_lluvias()
