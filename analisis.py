@@ -9,8 +9,6 @@ trips = pd.read_csv('trip.csv', low_memory=False)
 stations = pd.read_csv('station.csv', low_memory=False)
 weather = weather[weather["zip_code"] == 94107]
 
-
-
 def prepro_trips():
     # crea la columna date con tipo datetime y nuevas columnas para analizar despues
     trips["date"] = pd.to_datetime(trips.start_date, format='%m/%d/%Y %H:%M')
@@ -34,9 +32,6 @@ def prepro_weather():
     weather["llueve"] = weather["precipitation_inches"].apply(lambda x: 0 if x == 0.0 else 1)
     weather["dias_lluvia"] = weather["precipitation_inches"].apply(lambda x: 1)
 
-
-prepro_weather()
-prepro_trips()
 
 def cant_viajes_por_mes():
     trips = trips["month"].value_counts(sort=False)
@@ -69,7 +64,6 @@ def graficar_trips_por_hora():
 
 
 def graficar_trips_por_tempdia():
-
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
     weather = weather[weather.zip_code == 94107]
     new = combinar_trips_weather(weather,tripsByDay)
@@ -83,6 +77,7 @@ def graficar_cantidad_dias_lluvia():
     dias.plot(kind = "bar", y=["dias_lluvia"])
     plt.show()
 
+
 def graficar_top_recorridos():
     cantidad_de_recorridos = trips[["recorrido","trips"]]
     cantidad_de_recorridos = cantidad_de_recorridos.groupby("recorrido").count()
@@ -93,5 +88,7 @@ def graficar_top_recorridos():
 
 #def partir_weather():
 
+prepro_trips()
+prepro_weather()
+graficar_top_recorridos()
 
-graficar_cantidad_dias_lluvia()
