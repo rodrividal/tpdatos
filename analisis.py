@@ -127,7 +127,6 @@ def graficar_boxplot_dias_totales():
     aux = pd.DataFrame.from_dict(aux,orient='columns')
     aux.plot.box()
     plt.show()
-
 def graficar_scatter_matter():
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
     new = combinar_trips_weather(weather, tripsByDay)
@@ -157,6 +156,26 @@ def graficar_estaciones_inicio_por_hora():
 
 prepro_trips()
 prepro_weather()
+"""
+def graficar_ranking_de_recorridos_segun_clima():
+    tripsByDay = pd.DataFrame({'cantidad_recorridos': trips.groupby(['DATE'])['trips'].sum()}).reset_index()
+    trips_recorrido = combinar_trips_weather(trips, tripsByDay)
+    trips_weather = combinar_trips_weather(weather, trips_recorrido)
+    trips_weather = trips_weather[['recorrido','cantidad_recorridos','max_temperature_f' ]]
+    print trips_weather[:10]
+    
+    ranking_recorridos = cantidad_de_recorridos.sort_values(by="trips", ascending=False)[:5]
+    print(ranking_recorridos)
+    ranking_recorridos.plot(kind="bar")
+    plt.show()
+
+graficar_ranking_de_recorridos_segun_clima()
+"""
+
+tripsaux = trips.groupby(['DATE','recorrido']).aggregate(sum).reset_index()
+
+tripsaux['weekday'] = tripsaux['DATE'].apply(lambda x: x.weekday())
+tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux['trips'])
 
 
 
