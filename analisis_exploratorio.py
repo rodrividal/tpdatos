@@ -5,10 +5,10 @@ import numpy as np
 
 plt.style.use('ggplot')
 
-weather = pd.read_csv('weather.csv', low_memory=False)
-trips = pd.read_csv('trip.csv', low_memory=False)
-stations = pd.read_csv('station.csv', low_memory=False)
-weather = weather[weather["zip_code"] == 94107]
+# weather = pd.read_csv('weather.csv', low_memory=False)
+# trips = pd.read_csv('trip.csv', low_memory=False)
+# stations = pd.read_csv('station.csv', low_memory=False)
+# weather = weather[weather["zip_code"] == 94107]
 
 
 def prepro_trips():
@@ -132,11 +132,8 @@ def graficar_boxplot_dias_totales():
     for dia in dias:
         aux[dia] = trips[trips['weekday'] == a].groupby("DATE")["trips"].aggregate(sum)
         a += 1
-
     print aux
-
     # tripsByDayOfWeek = pd.DataFrame({"trips": trips.groupby(["weekday"])["trips"].sum()}).reset_index()
-
     # trips_por_dia_semana = pd.DataFrame({'trips': trips.groupby('weekday')['trips'].aggregate(sum)}).reset_index()
     # trips_por_dia_semana.boxplot(by='weekday')
     aux = pd.DataFrame({"trips": aux})
@@ -144,11 +141,50 @@ def graficar_boxplot_dias_totales():
     plt.show()
 
 
-#def partir_weather():
+def calcular_top_estaciones_inicio():
 
-prepro_trips_agus()
-# prepro_weather()
-#graficar_top_recorridos()
-#graficar_cantidad_dias_lluvia()
-#graficar_cantidad_de_viajes_por_cada_dia()
-graficar_boxplot_dias_totales()
+    return ranking
+
+
+def graficar_estaciones_entregadoras_y_receptoras():
+    """Necesito un grafico para ver, las estaciones que intervienen
+    en la mayor cantidad de viajes. Dentro de este grafico, muestro tambien
+    que rol ocupan en esos viajes, si entregan una bici, o la reciben."""
+    stations = pd.read_csv('station.csv', low_memory=False)
+    stations_new = stations[['id', 'name', 'dock_count', 'city', 'installation_date']]
+
+    trips = pd.read_csv('trip.csv', low_memory=False)
+    trips["trips"] = trips["id"].apply(lambda x: 1)
+    trips_new = trips[['start_date', 'end_date', 'start_station_id', 'end_station_id']]
+
+    cantidad_de_starts = trips[["start_station_id", "trips"]]
+    ranking_start = cantidad_de_starts.groupby("start_station_id").count().reset_index()
+    ranking_start["station_id"] = ranking_start["start_station_id"]
+    ranking_start["trips_inicio"] = ranking_start["trips"]
+    ranking_start = ranking_start[["station_id", "trips_inicio"]]
+
+    cantidad_de_ends = trips[["end_station_id", "trips"]]
+    ranking_end = cantidad_de_ends.groupby("end_station_id").count().reset_index()
+    ranking_end["station_id"] = ranking_end["end_station_id"]
+    ranking_end["trips_final"] = ranking_end["trips"]
+    ranking_end = ranking_end[["station_id", "trips_final"]]
+
+    combinado = pd.merge(ranking_start, ranking_end, right_index=True, left_index=True, on="station_id")
+    trips_totales = []
+    for line in combinado.values:
+        total = line[1] + line[2]
+        trips_totales.append(total)
+    combinado["trips_totales"] = trips_totales
+    # En el combinado deje el id de la estacion, con su cantida de viajes de ida, de fin, y totales
+    ordenado = combinado.sort_values(by="trips_totales", ascending=False)[:10]
+    ordenado = ordenado[["trips_inicio", "trips_final", "station_id"]]
+    print ordenado
+    # El stacked true sirve para que los dos colores se sumen en vez de que se muestren
+    # en barritas separadas
+    # ordenado.plot.barh(stacked=True)
+    # Y sino lo dejamos sin nada para que las muestre por separado
+    ordenado.plot.barh()
+    plt.show()
+
+
+graficar_estaciones_entregadoras_y_receptoras()
