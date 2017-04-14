@@ -23,6 +23,19 @@ def prepro_trips():
     trips["recorrido"] = trips["start_station_name"] + " to " + trips["end_station_name"]
 
 
+def prepro_trips_agus():
+    # crea la columna date con tipo datetime y nuevas columnas para analizar despues
+    trips["date"] = pd.to_datetime(trips.start_date, format='%m/%d/%Y %H:%M')
+    trips["month"] = trips["date"].apply(lambda x: x.month)
+    trips["day"] = trips["date"].apply(lambda x: x.day)
+    trips['weekday'] = trips['date'].apply(lambda x: x.weekday())
+    trips["hour"] = trips["date"].apply(lambda x: x.hour)
+    trips["year"] = trips["date"].apply(lambda x: x.year)
+    trips["DATE"] = pd.to_datetime(trips[['year', 'month', 'day']], yearfirst=True)
+    trips["trips"] = trips["day"].apply(lambda x: 1)
+    trips["recorrido"] = trips["start_station_name"] + " to " + trips["end_station_name"]
+
+
 def prepro_weather():
     weather["date"] = pd.to_datetime(weather.date, format="%m/%d/%Y")
     weather["month"] = weather["date"].apply(lambda x: x.month)
@@ -112,5 +125,30 @@ def graficar_top_recorridos():
     plt.show()
 
 
+def graficar_boxplot_dias_totales():
+    aux = {}
+    dias = ['l', 'ma', 'mi', 'ju', 'vier', 'sab', 'dom']
+    a = 0
+    for dia in dias:
+        aux[dia] = trips[trips['weekday'] == a].groupby("DATE")["trips"].aggregate(sum)
+        a += 1
+
+    print aux
+
+    # tripsByDayOfWeek = pd.DataFrame({"trips": trips.groupby(["weekday"])["trips"].sum()}).reset_index()
+
+    # trips_por_dia_semana = pd.DataFrame({'trips': trips.groupby('weekday')['trips'].aggregate(sum)}).reset_index()
+    # trips_por_dia_semana.boxplot(by='weekday')
+    aux = pd.DataFrame({"trips": aux})
+    aux.boxplot()
+    plt.show()
+
+
 #def partir_weather():
-#graficar_segun_lluvia()
+
+prepro_trips_agus()
+# prepro_weather()
+#graficar_top_recorridos()
+#graficar_cantidad_dias_lluvia()
+#graficar_cantidad_de_viajes_por_cada_dia()
+graficar_boxplot_dias_totales()
