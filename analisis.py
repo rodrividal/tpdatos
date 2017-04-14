@@ -1,7 +1,9 @@
 import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
+from pandas.tools.plotting import scatter_matrix
 
 plt.style.use('ggplot')
 
@@ -28,8 +30,11 @@ def prepro_weather():
     weather["month"] = weather["date"].apply(lambda x: x.month)
     weather["day"] = weather["date"].apply(lambda x: x.day)
     weather["year"] = weather["date"].apply(lambda x: x.year)
+    weather['weekday'] = weather['date'].apply(lambda x: x.weekday())
     weather['DATE'] = pd.to_datetime(weather[['year', 'month', 'day']], yearfirst=True)
     weather["max_temperature_f"] = weather["max_temperature_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["min_temperature_f"] = weather["min_temperature_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["mean_temperature_f"] = weather["mean_temperature_f"].apply(lambda x: (x - 32) / 1.8)
     weather["precipitation_inches"] = pd.to_numeric(weather["precipitation_inches"], errors="coerce")
     weather["llueve"] = weather["precipitation_inches"].apply(lambda x: 0 if x == 0.0 else 1)
     weather["dias_lluvia"] = weather["precipitation_inches"].apply(lambda x: 1)
@@ -65,11 +70,11 @@ def graficar_trips_por_hora():
     plt.show()
 
 
-def graficar_trips_por_tempdia():
+def graficar_trips_por_temperatura_dia():
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    weather = weather[weather.zip_code == 94107]
     new = combinar_trips_weather(weather,tripsByDay)
-    new.plot.scatter('max_temperature_f','trips',alpha=0.25,figsize=(12,8))
+    new = new[new['weekday'] ==  0 ]
+    new.plot.scatter('max_temperature_f','precipitation_inches',alpha=0.25,figsize=(12,8),s=new['trips'])
     plt.show()
 
 
@@ -92,49 +97,65 @@ def graficar_viajes_segun_lluvias():
     dfw = pd.DataFrame({"weather": weather})
     print dfw
 
+def calcular_top_estaciones_inicio():
+    cantidad_de_starts = trips[["start_station_name", "trips"]]
+    cantidad_de_starts = cantidad_de_starts.groupby("start_station_name").count()
+    ranking = cantidad_de_starts.sort_values(by="trips", ascending=False)[:4]
+    return ranking
 
 def graficar_top_recorridos():
     cantidad_de_recorridos = trips[["recorrido","trips"]]
     cantidad_de_recorridos = cantidad_de_recorridos.groupby("recorrido").count()
-    ranking_recorridos = cantidad_de_recorridos.sort_values(by = "trips", ascending=False)[:10]
+    ranking_recorridos = cantidad_de_recorridos.sort_values(by = "trips", ascending=False)[:5]
     print(ranking_recorridos)
     ranking_recorridos.plot(kind="bar")
     plt.show()
 
 def graficar_cantidad_de_viajes_por_cada_dia():
-
     trips_por_dia = trips.groupby('DATE').aggregate(sum)
     trips_por_dia['trips'].plot()
     plt.show()
 
 def graficar_boxplot_dias_totales():
+    aux = {}
+    dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+    a = 0
+    for dia in dias:
+        aux[dia] = trips[trips['weekday'] == a].groupby('DATE').aggregate(sum).reset_index()['trips'][:104]
+        a += 1
 
-
-    trips_por_dia_semana =pd.DataFrame({'trips': trips.groupby('weekday')['trips'].aggregate(sum)}).reset_index()
-    trips_por_dia_semana.boxplot(by='weekday')
+    aux = pd.DataFrame.from_dict(aux,orient='columns')
+    aux.plot.box()
     plt.show()
 
+def graficar_scatter_matter():
+    tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
+    new = combinar_trips_weather(weather, tripsByDay)
+    new2 = new [["max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f']]
+    scatter_matrix(new2, alpha=0.2, figsize=(6, 6), diagonal='kde')
+    plt.show()
 
+def graficar_heatmap_viajes_por_hora_en_cada_dia_semana():
+    trips3 = trips [["hour",'weekday','trips']]
+    trips2 = trips3.pivot_table(index = 'hour',columns = 'weekday',aggfunc=sum )
+    fig, ax = plt.subplots(figsize=(16,5))       # Sample figsize in inches
+    sns.heatmap(trips2,cmap='Oranges', xticklabels = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'])
+    sns.plt.show()
 
-#def partir_weather():
+def graficar_estaciones_inicio_por_hora():
+    lista_top = []
+    top_estaciones = calcular_top_estaciones_inicio().reset_index()['start_station_name']
+    lista_top = []
+    top_estaciones.apply(lambda x: lista_top.append(x))
+    trips3 = trips[["hour", 'start_station_name', 'trips']]
+    trips3 = trips3[trips3.start_station_name.isin(lista_top)]
+    trips2 = trips3.pivot_table(index='hour', columns='start_station_name', aggfunc=sum)
+     # Sample figsize in inches
+    sns.heatmap(trips2, cmap='Oranges')
+    sns.plt.show()
 
 prepro_trips()
 prepro_weather()
-#graficar_top_recorridos()
-#graficar_cantidad_dias_lluvia()
-#graficar_cantidad_de_viajes_por_cada_dia()
-#graficar_boxplot_dias_totales()
 
-print "aca"
-aux = {}
-dias = ['l', 'ma', 'mi', 'ju', 'vier', 'sab', 'dom']
-a = 0
-for dia in dias:
 
-    aux[dia] = trips[trips['weekday'] == a].groupby('DATE')['trips'].aggregate(sum)
-    a += 1
 
-aux['ma'].append(0)
-aux['mi'].append(0)
-for key in aux:
-    print key, len(aux[key])
