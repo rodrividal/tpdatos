@@ -170,6 +170,7 @@ def graficar_estaciones_entregadoras_y_receptoras():
 
     combinado = pd.merge(ranking_start, ranking_end, right_index=True, left_index=True, on="station_id")
     trips_totales = []
+    # Sumo la cantidad de participaciones en ida, y en final, para obtener las totales
     for line in combinado.values:
         total = line[1] + line[2]
         trips_totales.append(total)
