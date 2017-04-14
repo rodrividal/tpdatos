@@ -141,11 +141,6 @@ def graficar_boxplot_dias_totales():
     plt.show()
 
 
-def calcular_top_estaciones_inicio():
-
-    return ranking
-
-
 def graficar_estaciones_entregadoras_y_receptoras():
     """Necesito un grafico para ver, las estaciones que intervienen
     en la mayor cantidad de viajes. Dentro de este grafico, muestro tambien
