@@ -21,11 +21,6 @@ def prepro_trips():
     trips["DATE"] = pd.to_datetime(trips[['year', 'month', 'day']], yearfirst=True)
     trips["trips"] = trips["day"].apply(lambda x: 1)
     trips["recorrido"] = trips["start_station_name"] + " to " + trips["end_station_name"]
-    dias=['l','ma','mi','ju','vier','sab','dom']
-    a = 0
-    for dia in dias:
-        trips[dia] = trips[trips['weekday'] == a].groupby('DATE').aggregate(sum)
-        a += 1
 
 
 def prepro_weather():
@@ -130,11 +125,16 @@ prepro_weather()
 #graficar_cantidad_de_viajes_por_cada_dia()
 #graficar_boxplot_dias_totales()
 
-aux = pd.DataFrame()
-dias=['l','ma','mi','ju','vier','sab','dom']
+print "aca"
+aux = {}
+dias = ['l', 'ma', 'mi', 'ju', 'vier', 'sab', 'dom']
 a = 0
 for dia in dias:
-    aux[dia] = trips[trips['weekday'] == a]
-    a += 1
-print aux
 
+    aux[dia] = trips[trips['weekday'] == a].groupby('DATE')['trips'].aggregate(sum)
+    a += 1
+
+aux['ma'].append(0)
+aux['mi'].append(0)
+for key in aux:
+    print key, len(aux[key])
