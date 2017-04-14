@@ -155,7 +155,6 @@ def graficar_estaciones_entregadoras_y_receptoras():
 
     trips = pd.read_csv('trip.csv', low_memory=False)
     trips["trips"] = trips["id"].apply(lambda x: 1)
-    trips_new = trips[['start_date', 'end_date', 'start_station_id', 'end_station_id']]
 
     cantidad_de_starts = trips[["start_station_id", "trips"]]
     ranking_start = cantidad_de_starts.groupby("start_station_id").count().reset_index()
