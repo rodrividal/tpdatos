@@ -153,6 +153,7 @@ def graficar_estaciones_inicio_por_hora():
     sns.heatmap(trips2, cmap='Oranges')
     sns.plt.show()
 
+
 prepro_trips()
 prepro_weather()
 """
