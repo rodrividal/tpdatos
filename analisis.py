@@ -214,25 +214,33 @@ tripsaux['weekday'] = tripsaux['DATE'].apply(lambda x: x.weekday())
 tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux['trips'])
 """
 
-#graficar_barra_cant_viajes_por_dia_semana()
 
-#graficar_barra_cant_viajes_por_mes()
+""" como afecta el clima a los viajes """
 
 #lista_de_dias = [lunes, martes, miercoles, jueves, viernes]
 #graficar_scatter_weather_by_weekday('max_temperature_f', 'min_temperature_f', lista_de_dias)
 
-#graficar_barra_ranking_recorridos(4)
-
-#graficar_cantidad_de_viajes_por_cada_dia_del_set()
-
-#graficar_boxplot_cant_viajes_por_dia_de_la_semana()
-
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
 
+""" como cambian los viajes por dia de la semana y hora del dia"""
+
 #graficar_heatmap_viajes_por_hora_en_cada_dia_semana()
 
-#graficar_estaciones_inicio_mas_frecuentes_por_hora(3)
+#graficar_boxplot_cant_viajes_por_dia_de_la_semana()
+
+#graficar_barra_ranking_recorridos(4)
+
+
+"""otros"""
+
+#graficar_barra_cant_viajes_por_dia_semana()
+
+#graficar_barra_cant_viajes_por_mes()
+
+#graficar_cantidad_de_viajes_por_cada_dia_del_set()
+
+#graficar_barra_ranking_recorridos(4)
 
 #lista_atributos = ['max_temperature_f','max_humidity','max_dew_point_f']
 #graficar_correlacion(lista_atributos)
@@ -242,4 +250,3 @@ tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux
 
 #lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
 #graficar_correlacion(lista_atributos)
-
