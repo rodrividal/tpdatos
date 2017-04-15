@@ -52,7 +52,6 @@ def graficar_barra_cant_viajes_por_mes():
     plt.xticks(index,labels)
     plt.show()
 
-
 def graficar_barra_cant_viajes_por_dia_semana():
     week = [0, 0, 0, 0, 0, 0, 0]
     for day in trips["date"]:
@@ -133,16 +132,31 @@ def graficar_cantidad_de_viajes_por_cada_dia_del_set():
     plt.ylabel('Cantidad de viajes')
     plt.show()
 
+
 def graficar_boxplot_cant_viajes_por_dia_de_la_semana():
     aux = {}
     c = 0
- 1    for dia in dias:
-        aux[dia] = trips[trips['weekday'] == a].groupby('DATE').aggregate(sum).reset_index()['trips'][:104]
+    for dia in dias:
+        aux[dia] = trips[trips['weekday'] == c ].groupby('DATE').aggregate(sum).reset_index()['trips'][:104]
         c += 1
-
-    aux = pd.DataFrame.from_dict(aux,orient='columns')
+    aux = pd.DataFrame.from_dict(aux, orient='columns')
     aux.plot.box()
     plt.title('Cantidad de viajes por dia de la semana')
+    plt.xlabel('Dias de la semana')
+    plt.ylabel('Cantidad de viajes')
+    plt.show()
+
+def graficar_boxplot_cant_viajes_por_hora_del_dia():
+    aux = {}
+    c = 0
+    horas = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '15', '16', '17',
+             '18', '19', '20', '21','22','23']
+    for hora in horas:
+        aux[hora] = trips[trips['hour'] == c].groupby('DATE').aggregate(sum).reset_index()['trips'][:104]
+        c += 1
+    aux = pd.DataFrame.from_dict(aux, orient='columns')
+    aux.plot.box()
+    plt.title('Cantidad de viajes por hora del dia')
     plt.xlabel('Dias de la semana')
     plt.ylabel('Cantidad de viajes')
     plt.show()
@@ -223,11 +237,15 @@ tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
 
+
 """ como cambian los viajes por dia de la semana y hora del dia"""
+
 
 #graficar_heatmap_viajes_por_hora_en_cada_dia_semana()
 
-#graficar_boxplot_cant_viajes_por_dia_de_la_semana()
+graficar_boxplot_cant_viajes_por_dia_de_la_semana()
+
+#graficar_boxplot_cant_viajes_por_hora_del_dia()
 
 #graficar_barra_ranking_recorridos(4)
 
@@ -250,3 +268,4 @@ tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux
 
 #lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
 #graficar_correlacion(lista_atributos)
+
