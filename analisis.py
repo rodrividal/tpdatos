@@ -66,6 +66,17 @@ def graficar_barra_cant_viajes_por_dia_semana():
     plt.show()
 
 
+def graficar_barra_promedio_temperaturas_de_dia_en_cada_mes():
+    labels = meses
+    index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    weatherbymonth = weather.groupby('month').mean()['mean_temperature_f']
+    weatherbymonth.plot(kind= 'bar')
+    plt.xticks(index, labels)
+    plt.title(" Temperatura promedio del dia por cada mes")
+    plt.xlabel("Meses")
+    plt.ylabel(' Temperatura promedio del dia [C] ')
+    plt.show()
+
 def combinar_trips_weather(weather, trips):
     return pd.merge(weather, trips, on="DATE", how="right")
 
@@ -243,7 +254,7 @@ tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux
 
 #graficar_heatmap_viajes_por_hora_en_cada_dia_semana()
 
-graficar_boxplot_cant_viajes_por_dia_de_la_semana()
+#graficar_boxplot_cant_viajes_por_dia_de_la_semana()
 
 #graficar_boxplot_cant_viajes_por_hora_del_dia()
 
@@ -269,3 +280,4 @@ graficar_boxplot_cant_viajes_por_dia_de_la_semana()
 #lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
 #graficar_correlacion(lista_atributos)
 
+graficar_barra_promedio_temperaturas()
