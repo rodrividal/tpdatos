@@ -15,6 +15,7 @@ lunes, martes, miercoles, jueves, viernes, sabado, domingo = 0,1,2,3,4,5,6
 dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
 meses = ['Enero', 'Febrero', 'Marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre',
               'noviembre', 'diciembre']
+
 def prepro_trips():
     # crea la columna date con tipo datetime y nuevas columnas para analizar despues
     trips["date"] = pd.to_datetime(trips.start_date, format='%m/%d/%Y %H:%M')
@@ -88,6 +89,13 @@ def graficar_barra_cant_viajes_por_hora():
     plt.ylabel('Cantidad de viajes')
     plt.show()
 
+def graficar_barra_cantidad_de_eventos_meteorologicos():
+    events = weather.groupby('events').aggregate(sum)['dias_lluvia']
+    events.plot(kind='bar')
+    plt.title('Cantidad de eventos meteorologicos')
+    plt.xlabel('Eventos')
+    plt.ylabel('Cantidad de dias que ocurrio')
+    plt.show()
 
 def graficar_scatter_weather_by_weekday(atributo_1, atributo_2, lista_de_dias, titulo):
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
@@ -242,6 +250,10 @@ tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux
 
 """ como afecta el clima a los viajes """
 
+#graficar_barra_cantidad_de_eventos_meteorologicos()
+
+#graficar_barra_promedio_temperaturas_de_dia_en_cada_mes()
+
 #lista_de_dias = [lunes, martes, miercoles, jueves, viernes]
 #graficar_scatter_weather_by_weekday('max_temperature_f', 'min_temperature_f', lista_de_dias)
 
@@ -280,4 +292,3 @@ tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux
 #lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
 #graficar_correlacion(lista_atributos)
 
-graficar_barra_promedio_temperaturas()
