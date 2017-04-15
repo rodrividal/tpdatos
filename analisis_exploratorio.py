@@ -182,4 +182,3 @@ def graficar_estaciones_entregadoras_y_receptoras():
     plt.show()
 
 
-graficar_estaciones_entregadoras_y_receptoras()
