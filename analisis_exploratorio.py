@@ -176,9 +176,9 @@ def graficar_estaciones_entregadoras_y_receptoras():
     print ordenado
     # El stacked true sirve para que los dos colores se sumen en vez de que se muestren
     # en barritas separadas
-    # ordenado.plot.barh(stacked=True)
+    ordenado.plot.barh(stacked=True)
     # Y sino lo dejamos sin nada para que las muestre por separado
-    ordenado.plot.barh()
+    # ordenado.plot.barh()
     plt.show()
 
 
