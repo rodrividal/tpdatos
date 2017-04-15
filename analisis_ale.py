@@ -11,10 +11,7 @@ weather = pd.read_csv('weather.csv', low_memory=False)
 trips = pd.read_csv('trip.csv', low_memory=False)
 stations = pd.read_csv('station.csv', low_memory=False)
 weather = weather[weather["zip_code"] == 94107]
-lunes, martes, miercoles, jueves, viernes, sabado, domingo = 0,1,2,3,4,5,6
-dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
-meses = ['Enero', 'Febrero', 'Marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre',
-              'noviembre', 'diciembre']
+
 def prepro_trips():
     # crea la columna date con tipo datetime y nuevas columnas para analizar despues
     trips["date"] = pd.to_datetime(trips.start_date, format='%m/%d/%Y %H:%M')
@@ -43,25 +40,21 @@ def prepro_weather():
     weather["dias_lluvia"] = weather["precipitation_inches"].apply(lambda x: 1)
 
 
-def graficar_barra_cant_viajes_por_mes():
-    labels = meses
-    index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    trips_month = trips["month"].value_counts(sort=False)
-    barras = trips_month.plot(kind="bar")
-    barras.set(title = "Cantidad de viajes por mes", xlabel="Meses", ylabel="cantidad de viajes")
-    plt.xticks(index,labels)
+def cant_viajes_por_mes():
+    trips = trips["month"].value_counts(sort=False)
+    trips.plot(kind="bar")
     plt.show()
 
 
-def graficar_barra_cant_viajes_por_dia_semana():
+def cant_viajes_por_dia_semana():
     week = [0, 0, 0, 0, 0, 0, 0]
     for day in trips["date"]:
         week[day.weekday()] += 1
+
     index = [0, 1, 2, 3, 4, 5, 6]
-    labels = dias
+    labels = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
     plt.title("Cantidad total de viajes por dia de la semana")
-    plt.xlabel("Dias de la semana")
-    plt.ylabel('Cantidad de viajes')
+    plt.xlabel("Dias")
     plt.bar(index, week, align="center")
     plt.xticks(index, labels)
     plt.show()
@@ -70,23 +63,18 @@ def graficar_barra_cant_viajes_por_dia_semana():
 def combinar_trips_weather(weather, trips):
     return pd.merge(weather, trips, on="DATE", how="right")
 
-def graficar_barra_cant_viajes_por_hora():
+def graficar_trips_por_hora():
     tripsHora = trips.groupby("hour")
     tripsHora.count()["start_date"].plot(kind="bar")
     plt.title("Cantidad total de viajes por hora")
-    plt.xlabel("Hora del dia")
-    plt.ylabel('Cantidad de viajes')
     plt.show()
 
 
-def graficar_scatter_weather_by_weekday(atributo_1, atributo_2, lista_de_dias, titulo):
+def graficar_trips_por_temperatura_dia():
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    trips_weather = combinar_trips_weather(weather,tripsByDay)
-    trips_weather_weekdays = trips_weather[trips_weather.weekday.isin(lista_de_dias)]
-    trips_weather_weekdays.plot.scatter( atributo_1, atributo_2, alpha=0.25, figsize=(12,8), s=trips_weather_weekdays['trips'])
-    plt.title(titulo)
-    plt.xlabel(atributo_2)
-    plt.ylabel(atributo_1)
+    new = combinar_trips_weather(weather,tripsByDay)
+    new = new[new['weekday'] ==  0 ]
+    new.plot.scatter('max_temperature_f','precipitation_inches',alpha=0.25,figsize=(12,8),s=new['trips'])
     plt.show()
 
 
@@ -112,64 +100,50 @@ def graficar_viajes_segun_lluvias():
 def calcular_top_estaciones_inicio():
     cantidad_de_starts = trips[["start_station_name", "trips"]]
     cantidad_de_starts = cantidad_de_starts.groupby("start_station_name").count()
-    ranking = cantidad_de_starts.sort_values(by="trips", ascending=False)
+    ranking = cantidad_de_starts.sort_values(by="trips", ascending=False)[:4]
     return ranking
 
-def graficar_barra_ranking_recorridos(cantidad_ranking):
+def graficar_top_recorridos():
     cantidad_de_recorridos = trips[["recorrido","trips"]]
     cantidad_de_recorridos = cantidad_de_recorridos.groupby("recorrido").count()
-    ranking_recorridos = cantidad_de_recorridos.sort_values(by = "trips", ascending=False)[:cantidad_ranking]
+    ranking_recorridos = cantidad_de_recorridos.sort_values(by = "trips", ascending=False)[:5]
+    print(ranking_recorridos)
     ranking_recorridos.plot(kind="bar")
-    plt.title('Recorridos mas frecuentes')
-    plt.xlabel('Estaciones')
-    plt.ylabel('Cantidad de viajes')
     plt.show()
 
-def graficar_cantidad_de_viajes_por_cada_dia_del_set():
+def graficar_cantidad_de_viajes_por_cada_dia():
     trips_por_dia = trips.groupby('DATE').aggregate(sum)
     trips_por_dia['trips'].plot()
-    plt.title('Cantidad de viajes por dia')
-    plt.xlabel('Dias')
-    plt.ylabel('Cantidad de viajes')
     plt.show()
 
-def graficar_boxplot_cant_viajes_por_dia_de_la_semana():
+def graficar_boxplot_dias_totales():
     aux = {}
-    c = 0
- 1    for dia in dias:
+    dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+    a = 0
+    for dia in dias:
         aux[dia] = trips[trips['weekday'] == a].groupby('DATE').aggregate(sum).reset_index()['trips'][:104]
-        c += 1
+        a += 1
 
     aux = pd.DataFrame.from_dict(aux,orient='columns')
     aux.plot.box()
-    plt.title('Cantidad de viajes por dia de la semana')
-    plt.xlabel('Dias de la semana')
-    plt.ylabel('Cantidad de viajes')
     plt.show()
-
-def graficar_scatter_matter(atributo_1, atributo_2, atributo_3, atributo_4):
+def graficar_scatter_matter():
     tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    trips_weather = combinar_trips_weather(weather, tripsByDay)
-    trips_weather = trips_weather [["max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f']]
-    scatter_matrix(trips_weather, alpha=0.2, figsize=(6, 6), diagonal='kde')
+    new = combinar_trips_weather(weather, tripsByDay)
+    new2 = new [["max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f']]
+    scatter_matrix(new2, alpha=0.2, figsize=(6, 6), diagonal='kde')
     plt.show()
 
 def graficar_heatmap_viajes_por_hora_en_cada_dia_semana():
     trips3 = trips [["hour",'weekday','trips']]
     trips2 = trips3.pivot_table(index = 'hour',columns = 'weekday',aggfunc=sum )
     fig, ax = plt.subplots(figsize=(16,5))       # Sample figsize in inches
-    sns.heatmap(trips2,cmap='Oranges', xticklabels = dias)
+    sns.heatmap(trips2,cmap='Oranges', xticklabels = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'])
     sns.plt.show()
 
-def calcular_top_estaciones_inicio(cantidad_de_estaciones):
-    cantidad_de_starts = trips[["start_station_name", "trips"]]
-    cantidad_de_starts = cantidad_de_starts.groupby("start_station_name").count()
-    ranking = cantidad_de_starts.sort_values(by="trips", ascending=False)[:cantidad_de_estaciones]
-    return ranking
-
-def graficar_estaciones_inicio_mas_frecuentes_por_hora(cantidad_de_estaciones):
+def graficar_estaciones_inicio_por_hora():
     lista_top = []
-    top_estaciones = calcular_top_estaciones_inicio(cantidad_de_estaciones).reset_index()['start_station_name']
+    top_estaciones = calcular_top_estaciones_inicio().reset_index()['start_station_name']
     lista_top = []
     top_estaciones.apply(lambda x: lista_top.append(x))
     trips3 = trips[["hour", 'start_station_name', 'trips']]
@@ -178,19 +152,6 @@ def graficar_estaciones_inicio_mas_frecuentes_por_hora(cantidad_de_estaciones):
      # Sample figsize in inches
     sns.heatmap(trips2, cmap='Oranges')
     sns.plt.show()
-
-def graficar_correlacion(lista_atributos):
-    tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    data_estadisticas = combinar_trips_weather(weather, tripsByDay)
-    #data_estadisticas = data_estadisticas[['trips','max_temperature_f','min_temperature_f','mean_temperature_f']]
-    fig, ax = plt.subplots(figsize=(15,15));        # Sample figsize in inches
-    cor = data_estadisticas.loc[:,lista_atributos]\
-        .corr().abs()
-    sns.heatmap(cor,cmap='Oranges')
-    sns.plt.show()
-
-prepro_trips()
-prepro_weather()
 
 """
 def graficar_ranking_de_recorridos_segun_clima():
@@ -207,39 +168,66 @@ def graficar_ranking_de_recorridos_segun_clima():
 
 graficar_ranking_de_recorridos_segun_clima()
 """
-"""
-tripsaux = trips.groupby(['DATE','recorrido']).aggregate(sum).reset_index()
 
-tripsaux['weekday'] = tripsaux['DATE'].apply(lambda x: x.weekday())
-tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux['trips'])
-"""
+#tripsaux = trips.groupby(['DATE','recorrido']).aggregate(sum).reset_index()
 
-#graficar_barra_cant_viajes_por_dia_semana()
+#tripsaux['weekday'] = tripsaux['DATE'].apply(lambda x: x.weekday())
+#tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux['trips'])
 
-#graficar_barra_cant_viajes_por_mes()
+def cantidad_de_viajes_suscriptores_vs_no_subscriptores():
+    #Cantidad de viajes segun el tipo de subscripcion (Suscripto No subscripto)     
+    gruped = trips[["subscription_type","trips"]].groupby(["subscription_type"]).count()
+    gruped.plot(kind = "bar", y=["trips"])
+    plt.title("Cantidad total de viajes segun el tipo de subscripcion")
+    plt.show()
 
-#lista_de_dias = [lunes, martes, miercoles, jueves, viernes]
-#graficar_scatter_weather_by_weekday('max_temperature_f', 'min_temperature_f', lista_de_dias)
+    #Cantidad total registrada de viajes segun el tipo de subscripcion (Suscripto No subscripto) por dia de la semana
 
-#graficar_barra_ranking_recorridos(4)
+    plt.figure()
+    labels=["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]	
+    trips.loc[trips.subscription_type.str.contains('Customer'),\
+                 ['trips','weekday']].groupby('weekday').count()\
+                 .loc[:,'trips'].plot(rot=90,xticks=range(0,7), \
+                 linewidth=2,figsize=(12,8),label='Customer');
+    trips.loc[trips.subscription_type.str.contains('Subscriber'),\
+                 ['trips','weekday']].groupby('weekday').count()\
+                 .loc[:,'trips'].plot(rot=90,xticks=range(0,7), \
+                 linewidth=2,label='Subscriber');
+    plt.legend();
+    plt.title("Cantidad total de viajes registrados por dia de semana")
+    plt.xticks(range(0,7), labels)
+    plt.show();
 
-#graficar_cantidad_de_viajes_por_cada_dia_del_set()
 
-#graficar_boxplot_cant_viajes_por_dia_de_la_semana()
+    #trips.loc[trips.subscription_type.str.contains('Customer'),['weekday','trips']].groupby('weekday').count().plot(rot=90,linewidth=2,
+    #figsize=(12,8),label='Customer')
+    #plt.title("Cantidad total de viajes de Clientes por dia de la semana")
+    #trips.loc[trips.subscription_type.str.contains('Subscriber'),['weekday','trips']].groupby('weekday').count().plot(rot=90,linewidth=2,
+    #figsize=(12,8),label='Subscriber')    
+    #plt.title("Cantidad total de viajes de Subscriptores por dia de semana")
+    #plt.show()
 
-#atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
-#graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
 
-#graficar_heatmap_viajes_por_hora_en_cada_dia_semana()
+def graficar_top_bicletas_elegidas():
+    #Cuantos viajes tienen las bicletas mas elegidas, y las menos elegidas
+    trips[["bike_id","trips"]].groupby(["bike_id"]).count().sort_values(by = "trips", ascending=False)[:5].plot(kind = "bar")
+    plt.title("Top 5 bicicletas mas usadas")
+    plt.show()  
+    
+    trips[["bike_id","trips"]].groupby(["bike_id"]).count().sort_values(by = "trips", ascending=True)[:5].plot(kind = "bar")
+    plt.title("Top 5 bicicletas mas usadas")
+    plt.show()
 
-#graficar_estaciones_inicio_mas_frecuentes_por_hora(3)
 
-#lista_atributos = ['max_temperature_f','max_humidity','max_dew_point_f']
-#graficar_correlacion(lista_atributos)
+prepro_trips()
+graficar_top_bicletas_elegidas()
+cantidad_de_viajes_suscriptores_vs_no_subscriptores()
 
-#lista_atributos = ['mean_temperature_f','mean_humidity','mean_dew_point_f']
-#graficar_correlacion(lista_atributos)
 
-#lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
-#graficar_correlacion(lista_atributos)
+
+
+
+
+
+
 

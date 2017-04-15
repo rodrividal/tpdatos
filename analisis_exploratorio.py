@@ -178,7 +178,7 @@ def graficar_estaciones_entregadoras_y_receptoras():
     # en barritas separadas
     ordenado.plot.barh(stacked=True)
     # Y sino lo dejamos sin nada para que las muestre por separado
-    # ordenado.plot.barh()
+    #ordenado.plot.barh()
     plt.show()
 
 
