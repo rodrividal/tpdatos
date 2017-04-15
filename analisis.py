@@ -136,7 +136,7 @@ def graficar_cantidad_de_viajes_por_cada_dia_del_set():
 def graficar_boxplot_cant_viajes_por_dia_de_la_semana():
     aux = {}
     c = 0
-    for dia in dias:
+ 1    for dia in dias:
         aux[dia] = trips[trips['weekday'] == a].groupby('DATE').aggregate(sum).reset_index()['trips'][:104]
         c += 1
 
