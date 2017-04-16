@@ -117,6 +117,11 @@ def graficar_evolucion_clima_max_date():
 
 #graficar_estaciones_entregadoras_y_receptoras()
 #graficar_evolucion_clima_max_date()
+<<<<<<< Updated upstream
+=======
+
+trips = combinar_trips_weather()
+>>>>>>> Stashed changes
 
 
 #print(combinar_trip_weather().head(4))
