@@ -9,6 +9,10 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
+import sys  
+
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 plt.style.use('ggplot')
 
@@ -47,7 +51,7 @@ def prepro_cities():
 #    zip_codes = weather.zip_code.unique()
 #   cities = stations.city.unique()
     dict = {"city":['San Jose', 'Redwood City', 'Mountain View', 'Palo Alto', 'San Francisco'],
-            "zip_code":[95113, 94063, 94041, 94301, 94017]}
+            "zip_code":[95113, 94063, 94041, 94301, 94107]}
     return pd.DataFrame(dict)
     
     
@@ -92,13 +96,16 @@ def graficar_evolucion_clima_max_date():
     max_date = pd.to_datetime(weather.date.max(), format="%m/%d/%Y")
     weather_aux = clima[clima["date"] == max_date]
     merged_cities = combinar_city_weather(weather_aux, cities)
-    merged_cities = merged_cities[["max_temperature_f", "max_visibility_miles", "max_dew_point_f", "max_humidity", "precipitation_inches","city"]]
-    merged_cities.plot(subplots=True)
+#    merged_cities = merged_cities["max_temperature_f", "max_visibility_miles", "max_dew_point_f", "max_humidity", "precipitation_inches","city"]
+    #merged_cities.plot(x = "city" ,y="max_temperature_f" )
+    print( merged_cities.city.unique())
+    print( cities.city.unique())
+    merged_cities.plot( subplots = "true", figsize=(16,16))
+    
     
     #labels = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
     plt.title("Evolucion de variables climáticas según código postal.")
-    plt.xlabel("Ciudad")
-    
+    plt.xlabel("Ciudad") 
     
     #plt.xticks(index, labels)
     plt.show()
