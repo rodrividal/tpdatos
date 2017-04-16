@@ -45,7 +45,7 @@ def prepro_trips_agus():
 
 def prepro_cities():
 #    zip_codes = weather.zip_code.unique()
- #   cities = stations.city.unique()
+#   cities = stations.city.unique()
     dict = {"city":['San Jose', 'Redwood City', 'Mountain View', 'Palo Alto', 'San Francisco'],
             "zip_code":[95113, 94063, 94041, 94301, 94017]}
     return pd.DataFrame(dict)
@@ -63,6 +63,7 @@ def combinar_trips_weather():
     merged_cities = combinar_city_weather(clima, cities)
     merged_stations = combinar_station_weather(merged_cities, stations)
     return pd.merge(merged_stations, trips, left_on='id', right_on='start_station_id')
+
     
 
 def prepro_clima():
@@ -108,7 +109,7 @@ def graficar_evolucion_clima_max_date():
 
 
 #graficar_estaciones_entregadoras_y_receptoras()
-graficar_evolucion_clima_max_date()
+#graficar_evolucion_clima_max_date()
 
 
 #print(combinar_trip_weather().head(4))
