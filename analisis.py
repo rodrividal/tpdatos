@@ -27,6 +27,8 @@ def prepro_trips():
     trips["DATE"] = pd.to_datetime(trips[['year', 'month', 'day']], yearfirst=True)
     trips["trips"] = trips["day"].apply(lambda x: 1)
     trips["recorrido"] = trips["start_station_name"] + " to " + trips["end_station_name"]
+    trips.start_date = pd.to_datetime(trips.start_date)
+    trips.start_date = trips.start_date.apply(lambda x: x.date())
 
 
 def prepro_weather():
@@ -43,37 +45,37 @@ def prepro_weather():
     weather["llueve"] = weather["precipitation_inches"].apply(lambda x: 0 if x == 0.0 else 1)
     weather["dias_lluvia"] = weather["precipitation_inches"].apply(lambda x: 1)
 
+def combinar_trips_weather():
+    station_c = stations[['id', 'city']]
+    station_c = station_c.rename(columns={'id': 'start_station_id'})
+    trips_aux = trips.merge(station_c[['start_station_id', 'city']])
+    cantidad_viajes_df = trips_aux[['start_date', 'city','weekday']]
+    zip_code_c = []
+    for ciudad in cantidad_viajes_df.city:
+        if (ciudad == 'San Francisco'):
+            zip_code_c.append([94107])
+        if (ciudad == 'Redwood City'):
+            zip_code_c.append([94063])
+        if (ciudad == 'Palo Alto'):
+            zip_code_c.append([94301])
+        if (ciudad == 'Mountain View'):
+            zip_code_c.append([94041])
+        if (ciudad == 'San Jose'):
+            zip_code_c.append([95113])
 
-def prepro_cities():
-    #    zip_codes = weather.zip_code.unique()
-    #   cities = stations.city.unique()
-    dict = {"city": ['San Jose', 'Redwood City', 'Mountain View', 'Palo Alto', 'San Francisco'],
-            "zip_code": [95113, 94063, 94041, 94301, 94017]}
-    return pd.DataFrame(dict)
-
-
-def combinar_city_weather(weather, cities):
-    return pd.merge(weather, cities, on="zip_code", how="inner")  # left_on='zip_code', right_on='zip_code')
-
-
-def combinar_station_weather(weather, stations):
-    return pd.merge(weather, stations, on="city", how="inner")
-
-
-def combinar_trips_weather(lista_atributos_weather, lista_atributos_trips ):
-    aux_trips_list = ['start_station_id']
-    for element in lista_atributos_trips:
-        aux_trips_list.append(element)
-    trips_aux = trips[aux_trips_list]
-    aux_weather_list = ['zip_code', 'DATE']
-    for element in lista_atributos_weather:
-        aux_weather_list.append(element)
-    weather_aux = weather[aux_weather_list]
-    stations_aux = stations[['id','city']]
-    cities = prepro_cities()
-    merged_cities = combinar_city_weather(weather_aux, cities)
-    merged_stations = combinar_station_weather(merged_cities, stations_aux)
-    return pd.merge(merged_stations, trips_aux, left_on='id', right_on='start_station_id')
+    zip_code_c_df = pd.DataFrame(zip_code_c, columns={'zip_code'})
+    cantidad_viajes_df = pd.concat([cantidad_viajes_df, zip_code_c_df], axis=1)
+    cantidad_viajes_df = cantidad_viajes_df[['start_date', 'zip_code','weekday']]
+    cantidad_viajes_df.insert(3, 'cantidad', 1)
+    cantidad_viajes_df = cantidad_viajes_df.groupby(['start_date', 'zip_code']).aggregate(
+        sum).reset_index()
+    cantidad_viajes_df.start_date = pd.to_datetime(cantidad_viajes_df.start_date)
+    cantidad_viajes_df = cantidad_viajes_df.rename(columns={'start_date': 'date'})
+    weather_aux = weather
+    weather_aux.date = pd.to_datetime(weather_aux.date)
+    weather_aux = weather[['date', 'mean_temperature_f', 'mean_wind_speed_mph', 'mean_visibility_miles', 'zip_code']]
+    resultado = pd.merge(weather, cantidad_viajes_df)
+    return resultado
 
 
 def graficar_barra_cant_viajes_por_mes():
@@ -129,10 +131,9 @@ def graficar_barra_cantidad_de_eventos_meteorologicos():
 
 def graficar_scatter_weather_by_weekday(atributo_1, atributo_2, lista_de_dias, titulo):
 
-    trips_weather = combinar_trips_weather([atributo_1],[atributo_2])
+    trips_weather = combinar_trips_weather()
     trips_weather_weekdays = trips_weather[trips_weather.weekday.isin(lista_de_dias)]
-    trips_weather_weekdays =trips_weather_weekdays.groupby('DATE')
-    trips_weather_weekdays.plot.scatter(atributo_1, atributo_2, alpha=0.25, figsize=(12,8))
+    trips_weather_weekdays.plot.scatter(atributo_1, atributo_2, alpha=0.25, figsize=(12,8),  s=trips_weather_weekdays['cantidad'])
     plt.title(titulo)
     plt.xlabel(atributo_2)
     plt.ylabel(atributo_1)
@@ -256,28 +257,6 @@ def graficar_correlacion(lista_atributos):
 prepro_trips()
 prepro_weather()
 
-"""
-def graficar_ranking_de_recorridos_segun_clima():
-    tripsByDay = pd.DataFrame({'cantidad_recorridos': trips.groupby(['DATE'])['trips'].sum()}).reset_index()
-    trips_recorrido = combinar_trips_weather(trips, tripsByDay)
-    trips_weather = combinar_trips_weather(weather, trips_recorrido)
-    trips_weather = trips_weather[['recorrido','cantidad_recorridos','max_temperature_f' ]]
-    print trips_weather[:10]
-    
-    ranking_recorridos = cantidad_de_recorridos.sort_values(by="trips", ascending=False)[:5]
-    print(ranking_recorridos)
-    ranking_recorridos.plot(kind="bar")
-    plt.show()
-
-graficar_ranking_de_recorridos_segun_clima()
-"""
-"""
-tripsaux = trips.groupby(['DATE','recorrido']).aggregate(sum).reset_index()
-
-tripsaux['weekday'] = tripsaux['DATE'].apply(lambda x: x.weekday())
-tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux['trips'])
-"""
-
 
 """ como afecta el clima a los viajes """
 
@@ -285,8 +264,8 @@ tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux
 
 #graficar_barra_promedio_temperaturas_promedio_de_dia_en_cada_mes()
 
-#lista_de_dias = [lunes, martes, miercoles, jueves, viernes]
-#graficar_scatter_weather_by_weekday('max_temperature_f', 'min_temperature_f', lista_de_dias,'grafico')
+lista_de_dias = [lunes, martes, miercoles, jueves, viernes]
+graficar_scatter_weather_by_weekday('max_temperature_f', 'min_temperature_f', lista_de_dias,' temperatura maxima y minima')
 
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
@@ -322,9 +301,4 @@ tripsaux.plot.scatter('weekday','recorrido',alpha=0.25,figsize=(12,8),s=tripsaux
 
 #lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
 #graficar_correlacion(lista_atributos
-
-atributos_trips = ['trips']
-atributos_weather = ['max_temperature_f']
-trips_weather = combinar_trips_weather(atributos_weather, atributos_trips)
-print trips_weather.count()
 
