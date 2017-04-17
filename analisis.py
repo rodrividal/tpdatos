@@ -339,7 +339,11 @@ prepro_weather()
 #graficar_correlacion(lista_atributos
 
 
+<<<<<<< HEAD
 graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
+=======
+graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
+>>>>>>> a214a985f522cead89706f67a8f6ac609c93ff10
 
 #graficar_cantidad_dias_lluvia()
 
