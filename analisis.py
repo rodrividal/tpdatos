@@ -41,6 +41,9 @@ def prepro_weather():
     weather["max_temperature_c"] = weather["max_temperature_f"].apply(lambda x: (x - 32) / 1.8)
     weather["min_temperature_c"] = weather["min_temperature_f"].apply(lambda x: (x - 32) / 1.8)
     weather["mean_temperature_c"] = weather["mean_temperature_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["mean_dew_point_c"] = weather["mean_dew_point_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["max_dew_point_c"] = weather["max_dew_point_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["min_dew_point_c"] = weather["min_dew_point_f"].apply(lambda x: (x - 32) / 1.8)
     weather["precipitation_inches"] = pd.to_numeric(weather["precipitation_inches"], errors="coerce")
     weather["llueve"] = weather["events"].apply(lambda x: 0 if x != "rain" else 1)
     weather["n_events"] = weather["events"].apply(lambda x: func(x))
@@ -245,6 +248,7 @@ def graficar_scatter_matter(lista_atributos):
     trips_weather = combinar_trips_weather(lista_atributos)
     trips_weather = trips_weather [lista_atributos]
     scatter_matrix(trips_weather, alpha=0.2, figsize=(6, 6), diagonal='kde')
+    plt.title('Relaciones entre atributos')
     plt.show()
 
 def graficar_heatmap_viajes_por_hora_en_cada_dia_semana():
@@ -303,8 +307,8 @@ prepro_weather()
 #lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
 #graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de_dias,'Cantidad de viajes segun temperatura y humedad maxima de cada dia')
 
-#atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
-#graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
+lista_atributos= ["mean_temperature_c","mean_humidity",'precipitation_inches','mean_dew_point_c']
+graficar_scatter_matter(lista_atributos)
 
 
 """ como cambian los viajes por dia de la semana y hora del dia"""
@@ -329,21 +333,18 @@ prepro_weather()
 
 #graficar_barra_ranking_recorridos(4)
 
-#lista_atributos = ['max_temperature_f','max_humidity','max_dew_point_f']
+#lista_atributos = ['max_temperature_c','max_humidity','max_dew_point_c']
 #graficar_correlacion(lista_atributos)
 
-#lista_atributos = ['mean_temperature_f','mean_humidity','mean_dew_point_f']
+#lista_atributos = ['mean_temperature_c','mean_humidity','mean_dew_point_c']
 #graficar_correlacion(lista_atributos)
 
-#lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
+#lista_atributos = ['min_temperature_c','min_humidity','min_dew_point_c']
 #graficar_correlacion(lista_atributos
 
 
-<<<<<<< HEAD
-graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
-=======
-graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
->>>>>>> a214a985f522cead89706f67a8f6ac609c93ff10
+
+#graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_c", "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
 
 #graficar_cantidad_dias_lluvia()
 
