@@ -61,12 +61,6 @@ def func(x):
 def func2(x):
     if x == 2:
         return 1
-    elif x == 0:
-        return 1
-    elif x == 1:
-        return 1
-    elif x == 3:
-        return 1
     else:
         return 0
 
@@ -187,7 +181,7 @@ def graficar_scatter_Viajes_durante_Eventos():
 
 def graficar_cantidad_dias_lluvia():
 
-    new = combinar_trips_weather(["llueve", "dias lluvia"])
+    new = combinar_trips_weather(["llueve", "dias_lluvia"])
     dias = new.groupby("llueve").aggregate(sum)
     dias.plot(kind = "bar", y=["dias_lluvia"])
     plt.xlabel("Dias de lluvia")
@@ -344,4 +338,5 @@ prepro_weather()
 
 #graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
 
-graficar_cantidad_dias_lluvia()
+#graficar_cantidad_dias_lluvia()
+print combinar_trips_weather(["n_events"])["n_events"]
