@@ -66,39 +66,39 @@ def func2(x):
 
 
 def combinar_trips_weather(lista_atributos):
-    station_c = stations[['id', 'city']]
-    station_c = station_c.rename(columns={'id': 'start_station_id'})
-    trips_aux = trips.merge(station_c[['start_station_id', 'city']])
-    cantidad_viajes_df = trips_aux[['start_date', 'city','weekday']]
-    zip_code_c = []
-    for ciudad in cantidad_viajes_df.city:
-        if (ciudad == 'San Francisco'):
-            zip_code_c.append([94107])
-        if (ciudad == 'Redwood City'):
-            zip_code_c.append([94063])
-        if (ciudad == 'Palo Alto'):
-            zip_code_c.append([94301])
-        if (ciudad == 'Mountain View'):
-            zip_code_c.append([94041])
-        if (ciudad == 'San Jose'):
-            zip_code_c.append([95113])
+    zip_list = []
+    station_id_city = stations[['id', 'city']]
+    station_id_city = station_id_city.rename(columns={'id': 'start_station_id'})
+    trips_aux = trips.merge(station_id_city[['start_station_id', 'city']])
+    viajes = trips_aux[['start_date', 'city','weekday']]
 
-    zip_code_c_df = pd.DataFrame(zip_code_c, columns={'zip_code'})
-    cantidad_viajes_df = pd.concat([cantidad_viajes_df, zip_code_c_df], axis=1)
-    cantidad_viajes_df = cantidad_viajes_df[['start_date', 'zip_code','weekday']]
-    cantidad_viajes_df.insert(3, 'trips', 1)
-    cantidad_viajes_df = cantidad_viajes_df.groupby(['start_date', 'zip_code']).aggregate(
-        sum).reset_index()
-    cantidad_viajes_df.start_date = pd.to_datetime(cantidad_viajes_df.start_date)
-    cantidad_viajes_df = cantidad_viajes_df.rename(columns={'start_date': 'date'})
+    for city in viajes.city:
+        if (city == 'San Francisco'):
+            zip_list.append([94107])
+        elif (city == 'Redwood City'):
+            zip_list.append([94063])
+        elif (city == 'Mountain View'):
+            zip_list.append([94041])
+        elif (city == 'San Jose'):
+            zip_list.append([95113])
+        elif (city == 'Palo Alto'):
+            zip_list.append([94301])
+
+    zip_code_Df = pd.DataFrame(zip_list, columns={'zip_code'})
+    trips_df= pd.concat([viajes , zip_code_Df], axis=1)
+    trip_df = trips_df[['start_date', 'zip_code','weekday']]
+    trips_df.insert(3, 'trips', 1)
+    trips_df = trips_df.groupby(['start_date', 'zip_code']).aggregate(sum).reset_index()
+    trips_df.start_date = pd.to_datetime(trips_df.start_date)
+    trips_df = trips_df.rename(columns={'start_date': 'date'})
     weather_aux = weather
     weather_aux.date = pd.to_datetime(weather_aux.date)
     lista_aux = ["date", "zip_code"]
     for elemento in lista_atributos:
         lista_aux.append(elemento)
     weather_aux = weather[lista_aux]
-    resultado = pd.merge(weather_aux, cantidad_viajes_df)
-    return resultado
+    return pd.merge(weather_aux, trips_df)
+
 
 
 def graficar_barra_cant_viajes_por_mes():
@@ -156,9 +156,9 @@ def graficar_barra_cantidad_de_eventos_meteorologicos():
     plt.show()
 
 def graficar_scatter_weather_by_weekday(atributo_1, atributo_2, lista_de_dias, titulo):
-    trips_weather = combinar_trips_weather()
+    trips_weather = combinar_trips_weather([atributo_1, atributo_2])
     trips_weather_weekdays = trips_weather[trips_weather.weekday.isin(lista_de_dias)]
-    trips_weather_weekdays.plot.scatter(atributo_1, atributo_2, alpha=0.25, figsize=(12,8),  s=trips_weather_weekdays['cantidad'])
+    trips_weather_weekdays.plot.scatter(atributo_1, atributo_2, alpha=0.25, figsize=(12,8),  s=trips_weather_weekdays['trips'])
     plt.title(titulo)
     plt.xlabel(atributo_1)
     plt.ylabel(atributo_2)
@@ -253,6 +253,8 @@ def graficar_heatmap_viajes_por_hora_en_cada_dia_semana():
     trips2 = trips3.pivot_table(index = 'hour',columns = 'weekday',aggfunc=sum )
     fig, ax = plt.subplots(figsize=(16,5))       # Sample figsize in inches
     sns.heatmap(trips2,cmap='Oranges', xticklabels = dias)
+    sns.plt.title("Viajes por hora en cada dia de semana")
+    
     sns.plt.show()
 
 def calcular_top_estaciones_inicio(cantidad_de_estaciones):
@@ -274,8 +276,6 @@ def graficar_estaciones_inicio_mas_frecuentes_por_hora(cantidad_de_estaciones):
     sns.plt.show()
 
 def graficar_correlacion(lista_atributos):
-
-    lista_atributos = ["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"]
     data_estadisticas = combinar_trips_weather(lista_atributos)
     fig, ax = plt.subplots(figsize=(15,15));        # Sample figsize in inches
     cor = data_estadisticas.loc[:,lista_atributos]\
@@ -300,8 +300,8 @@ prepro_weather()
 
 #graficar_scatter_Viajes_durante_Eventos()
 
-#lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
-#graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de_dias,'Cantidad de viajes segun temperatura y humedad maxima de cada dia')
+lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
+graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de_dias,'Cantidad de viajes segun temperatura y humedad maxima de cada dia')
 
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
