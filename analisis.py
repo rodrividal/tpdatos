@@ -42,10 +42,30 @@ def prepro_weather():
     weather["min_temperature_c"] = weather["min_temperature_f"].apply(lambda x: (x - 32) / 1.8)
     weather["mean_temperature_c"] = weather["mean_temperature_f"].apply(lambda x: (x - 32) / 1.8)
     weather["precipitation_inches"] = pd.to_numeric(weather["precipitation_inches"], errors="coerce")
-    weather["llueve"] = weather["precipitation_inches"].apply(lambda x: 0 if x == 0.0 else 1)
-    weather["dias_lluvia"] = weather["precipitation_inches"].apply(lambda x: 1)
+    weather["llueve"] = weather["events"].apply(lambda x: 0 if x != "rain" else 1)
+    weather["n_events"] = weather["events"].apply(lambda x: func(x))
+    weather["dias_lluvia"] = weather["n_events"].apply(lambda x: func2(x))
 
-def combinar_trips_weather():
+def func(x):
+    if x == "Rain":
+        return 2
+    elif x == 'rain':
+        return 2
+    elif x == "Fog":
+        return 1
+    elif x == "Rain-Thunderstorm":
+        return 0
+    elif x == "Fog-Rain":
+        return 3
+
+def func2(x):
+    if x == 2:
+        return 1
+    else:
+        return 0
+
+
+def combinar_trips_weather(lista_atributos):
     station_c = stations[['id', 'city']]
     station_c = station_c.rename(columns={'id': 'start_station_id'})
     trips_aux = trips.merge(station_c[['start_station_id', 'city']])
@@ -66,14 +86,17 @@ def combinar_trips_weather():
     zip_code_c_df = pd.DataFrame(zip_code_c, columns={'zip_code'})
     cantidad_viajes_df = pd.concat([cantidad_viajes_df, zip_code_c_df], axis=1)
     cantidad_viajes_df = cantidad_viajes_df[['start_date', 'zip_code','weekday']]
-    cantidad_viajes_df.insert(3, 'cantidad', 1)
+    cantidad_viajes_df.insert(3, 'trips', 1)
     cantidad_viajes_df = cantidad_viajes_df.groupby(['start_date', 'zip_code']).aggregate(
         sum).reset_index()
     cantidad_viajes_df.start_date = pd.to_datetime(cantidad_viajes_df.start_date)
     cantidad_viajes_df = cantidad_viajes_df.rename(columns={'start_date': 'date'})
     weather_aux = weather
     weather_aux.date = pd.to_datetime(weather_aux.date)
-    weather_aux = weather[['date', "max_temperature_c", "min_temperature_c",'zip_code']]
+    lista_aux = ["date", "zip_code"]
+    for elemento in lista_atributos:
+        lista_aux.append(elemento)
+    weather_aux = weather[lista_aux]
     resultado = pd.merge(weather_aux, cantidad_viajes_df)
     return resultado
 
@@ -117,14 +140,17 @@ def graficar_barra_cant_viajes_por_hora():
     tripsHora = trips.groupby("hour")
     tripsHora.count()["start_date"].plot(kind="bar")
     plt.title("Cantidad total de viajes por hora")
-    plt.xlabel("Hora del dia")
+    plt.xlabel("Hora del dia [hs]")
     plt.ylabel('Cantidad de viajes')
     plt.show()
 
 def graficar_barra_cantidad_de_eventos_meteorologicos():
-    events = weather.groupby('events').aggregate(sum)['dias_lluvia']
+    events = weather.groupby('n_events').aggregate(sum)['dias_lluvia']
     events.plot(kind='bar')
     plt.title('Cantidad de eventos meteorologicos')
+    index = [0, 1, 2, 3]
+    labels = ["Rain-Thunderstorm", "Fog", "Rain", "Fog-Rain"]
+    plt.xticks(index, labels)
     plt.xlabel('Eventos')
     plt.ylabel('Cantidad de dias que ocurrio')
     plt.show()
@@ -134,29 +160,33 @@ def graficar_scatter_weather_by_weekday(atributo_1, atributo_2, lista_de_dias, t
     trips_weather_weekdays = trips_weather[trips_weather.weekday.isin(lista_de_dias)]
     trips_weather_weekdays.plot.scatter(atributo_1, atributo_2, alpha=0.25, figsize=(12,8),  s=trips_weather_weekdays['cantidad'])
     plt.title(titulo)
-    plt.xlabel(atributo_2)
-    plt.ylabel(atributo_1)
+    plt.xlabel(atributo_1)
+    plt.ylabel(atributo_2)
+    plt.show()
+
+def graficar_scatter_Viajes_durante_Eventos():
+
+    trips_weather= combinar_trips_weather(["n_events", "precipitation_inches"])
+    trips_weather_by_events = trips_weather[trips_weather.n_events.isin([0,1,2,3])]
+    trips_weather_by_events.plot.scatter("n_events", "precipitation_inches", alpha=0.25, figsize=(12,8),  s=trips_weather_by_events['trips'])
+    plt.title("Cantidad de Viajes durante eventos meteorologicos con determinada precipitacion")
+    index = [0, 1, 2, 3]
+    labels = ["Rain-Thunderstorm", "Fog", "Rain", "Fog-Rain"]
+    plt.xticks(index, labels)
+    plt.xlabel("Eventos")
+    plt.ylabel("Precipitation inches")
     plt.show()
 
 
 def graficar_cantidad_dias_lluvia():
-    tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    new = combinar_trips_weather(weather, tripsByDay)
+
+    new = combinar_trips_weather(["llueve", "dias_lluvia"])
     dias = new.groupby("llueve").aggregate(sum)
     dias.plot(kind = "bar", y=["dias_lluvia"])
+    plt.xlabel("Dias de lluvia")
+    plt.ylabel("Precipitation inches")
     plt.show()
 
-
-def graficar_viajes_segun_lluvias():
-    # df3 = pd.DataFrame(np.random.rand(500, 2), columns=['B', 'C']).cumsum()
-    # print df3
-    # df3['A'] = pd.Series(list(range(len(df3))))
-    # df3.plot(x='A', y='C')
-    # plt.show()
-    # df = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    # print df
-    dfw = pd.DataFrame({"weather": weather})
-    print dfw
 
 def calcular_top_estaciones_inicio():
     cantidad_de_starts = trips[["start_station_name", "trips"]]
@@ -165,7 +195,7 @@ def calcular_top_estaciones_inicio():
     return ranking
 
 def graficar_barra_ranking_recorridos(cantidad_ranking):
-    cantidad_de_recorridos = trips[["recorrido","trips"]]
+    cantidad_de_recorridos = trips[["recorrido" ,"trips"]]
     cantidad_de_recorridos = cantidad_de_recorridos.groupby("recorrido").count()
     ranking_recorridos = cantidad_de_recorridos.sort_values(by = "trips", ascending=False)[:cantidad_ranking]
     ranking_recorridos.plot(kind="bar")
@@ -244,9 +274,9 @@ def graficar_estaciones_inicio_mas_frecuentes_por_hora(cantidad_de_estaciones):
     sns.plt.show()
 
 def graficar_correlacion(lista_atributos):
-    tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    data_estadisticas = combinar_trips_weather(weather, tripsByDay)
-    #data_estadisticas = data_estadisticas[['trips','max_temperature_f','min_temperature_f','mean_temperature_f']]
+
+    lista_atributos = ["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"]
+    data_estadisticas = combinar_trips_weather(lista_atributos)
     fig, ax = plt.subplots(figsize=(15,15));        # Sample figsize in inches
     cor = data_estadisticas.loc[:,lista_atributos]\
         .corr().abs()
@@ -259,12 +289,19 @@ prepro_weather()
 
 """ como afecta el clima a los viajes """
 
-#graficar_barra_cantidad_de_eventos_meteorologicos()
+
 
 #graficar_barra_promedio_temperaturas_promedio_de_dia_en_cada_mes()
 
 #lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
 #graficar_scatter_weather_by_weekday('max_temperature_c', 'min_temperature_c', lista_de_dias,'Cantidad de viajes segun temperatura maxima y minima de cada dia')
+
+#graficar_barra_cantidad_de_eventos_meteorologicos()
+
+#graficar_scatter_Viajes_durante_Eventos()
+
+#lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
+#graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de_dias,'Cantidad de viajes segun temperatura y humedad maxima de cada dia')
 
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
@@ -301,5 +338,8 @@ prepro_weather()
 #lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
 #graficar_correlacion(lista_atributos
 
-graficar_barra_cantidad_de_eventos_meteorologicos()
+
+#graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
+
+#graficar_cantidad_dias_lluvia()
 
