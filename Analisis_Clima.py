@@ -91,23 +91,29 @@ def prepro_clima():
 def graficar_evolucion_clima_max_date():
     clima = prepro_clima()
     cities = prepro_cities()
-    merged_cities = combinar_city_weather(clima, cities)
     
     max_date = pd.to_datetime(weather.date.max(), format="%m/%d/%Y")
-    weather_aux = clima[clima["date"] == max_date]
-    merged_cities = combinar_city_weather(weather_aux, cities)
-#    merged_cities = merged_cities["max_temperature_f", "max_visibility_miles", "max_dew_point_f", "max_humidity", "precipitation_inches","city"]
+    weather_aux = clima[clima["date"] == max_date]    
+    merged_cities = combinar_city_weather(weather_aux , cities)
+    
+    #    merged_cities = merged_cities["max_temperature_f", "max_visibility_miles", "max_dew_point_f", "max_humidity", "precipitation_inches","city"]
     #merged_cities.plot(x = "city" ,y="max_temperature_f" )
-    print( merged_cities.city.unique())
-    print( cities.city.unique())
-    merged_cities.plot( subplots = "true", figsize=(16,16))
+    #print( merged_cities.city.unique())
+    #print( cities.city.unique())
+    #merged_cities.plot( subplots = "true", figsize=(10,7), sharex=True)
+        
+    
+  
+    #merged_cities.plot( subplots = "true", figsize=(10,7), sharex=True).bar()
+  
+    merged_cities.plot.bar(subplots = "true", figsize=(10,16), sharex=True)
     
     
-    #labels = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
+    labels = merged_cities["city"]
     plt.title("Evolucion de variables climáticas según código postal.")
     plt.xlabel("Ciudad") 
     
-    #plt.xticks(index, labels)
+    plt.xticks(merged_cities["zip_code"], labels)
     plt.show()
     
     
@@ -116,12 +122,8 @@ def graficar_evolucion_clima_max_date():
 
 
 #graficar_estaciones_entregadoras_y_receptoras()
-#graficar_evolucion_clima_max_date()
-<<<<<<< Updated upstream
-=======
+graficar_evolucion_clima_max_date()
 
-trips = combinar_trips_weather()
->>>>>>> Stashed changes
 
 
 #print(combinar_trip_weather().head(4))
