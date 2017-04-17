@@ -38,9 +38,9 @@ def prepro_weather():
     weather["year"] = weather["date"].apply(lambda x: x.year)
     weather['weekday'] = weather['date'].apply(lambda x: x.weekday())
     weather['DATE'] = pd.to_datetime(weather[['year', 'month', 'day']], yearfirst=True)
-    weather["max_temperature_f"] = weather["max_temperature_f"].apply(lambda x: (x - 32) / 1.8)
-    weather["min_temperature_f"] = weather["min_temperature_f"].apply(lambda x: (x - 32) / 1.8)
-    weather["mean_temperature_f"] = weather["mean_temperature_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["max_temperature_c"] = weather["max_temperature_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["min_temperature_c"] = weather["min_temperature_f"].apply(lambda x: (x - 32) / 1.8)
+    weather["mean_temperature_c"] = weather["mean_temperature_f"].apply(lambda x: (x - 32) / 1.8)
     weather["precipitation_inches"] = pd.to_numeric(weather["precipitation_inches"], errors="coerce")
     weather["llueve"] = weather["precipitation_inches"].apply(lambda x: 0 if x == 0.0 else 1)
     weather["dias_lluvia"] = weather["precipitation_inches"].apply(lambda x: 1)
@@ -73,8 +73,8 @@ def combinar_trips_weather():
     cantidad_viajes_df = cantidad_viajes_df.rename(columns={'start_date': 'date'})
     weather_aux = weather
     weather_aux.date = pd.to_datetime(weather_aux.date)
-    weather_aux = weather[['date', 'mean_temperature_f', 'mean_wind_speed_mph', 'mean_visibility_miles', 'zip_code']]
-    resultado = pd.merge(weather, cantidad_viajes_df)
+    weather_aux = weather[['date', "max_temperature_c", "min_temperature_c",'zip_code']]
+    resultado = pd.merge(weather_aux, cantidad_viajes_df)
     return resultado
 
 
@@ -264,8 +264,8 @@ prepro_weather()
 
 #graficar_barra_promedio_temperaturas_promedio_de_dia_en_cada_mes()
 
-lista_de_dias = [lunes, martes, miercoles, jueves, viernes]
-graficar_scatter_weather_by_weekday('max_temperature_f', 'min_temperature_f', lista_de_dias,' temperatura maxima y minima')
+lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
+graficar_scatter_weather_by_weekday('max_temperature_c', 'min_temperature_c', lista_de_dias,'Cantidad de viajes segun temperatura maxima y minima de cada dia')
 
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
