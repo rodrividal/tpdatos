@@ -89,7 +89,7 @@ def combinar_trips_weather(lista_atributos):
 
     zip_code_Df = pd.DataFrame(zip_list, columns={'zip_code'})
     trips_df= pd.concat([viajes , zip_code_Df], axis=1)
-    trip_df = trips_df[['start_date', 'zip_code','weekday']]
+    trips_df = trips_df[['start_date', 'zip_code','weekday']]
     trips_df.insert(3, 'trips', 1)
     trips_df = trips_df.groupby(['start_date', 'zip_code']).aggregate(sum).reset_index()
     trips_df.start_date = pd.to_datetime(trips_df.start_date)
