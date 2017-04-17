@@ -151,19 +151,19 @@ def graficar_estaciones_entregadoras_y_receptoras():
     trips = pd.read_csv('trip.csv', low_memory=False)
     trips["trips"] = trips["id"].apply(lambda x: 1)
 
-    cantidad_de_starts = trips[["start_station_id", "trips"]]
-    ranking_start = cantidad_de_starts.groupby("start_station_id").count().reset_index()
-    ranking_start["station_id"] = ranking_start["start_station_id"]
-    ranking_start["trips_inicio"] = ranking_start["trips"]
-    ranking_start = ranking_start[["station_id", "trips_inicio"]]
+    cantidad_de_starts = trips[["start_station_name", "trips"]]
+    ranking_start = cantidad_de_starts.groupby("start_station_name").count().reset_index()
+    ranking_start["station_name"] = ranking_start["start_station_name"]
+    ranking_start["Comenzados"] = ranking_start["trips"]
+    ranking_start = ranking_start[["station_name", "Comenzados"]]
 
-    cantidad_de_ends = trips[["end_station_id", "trips"]]
-    ranking_end = cantidad_de_ends.groupby("end_station_id").count().reset_index()
-    ranking_end["station_id"] = ranking_end["end_station_id"]
-    ranking_end["trips_final"] = ranking_end["trips"]
-    ranking_end = ranking_end[["station_id", "trips_final"]]
+    cantidad_de_ends = trips[["end_station_name", "trips"]]
+    ranking_end = cantidad_de_ends.groupby("end_station_name").count().reset_index()
+    ranking_end["station_name"] = ranking_end["end_station_name"]
+    ranking_end["Finalizados"] = ranking_end["trips"]
+    ranking_end = ranking_end[["station_name", "Finalizados"]]
 
-    combinado = pd.merge(ranking_start, ranking_end, right_index=True, left_index=True, on="station_id")
+    combinado = pd.merge(ranking_start, ranking_end, right_index=True, left_index=True, on="station_name")
     trips_totales = []
     # Sumo la cantidad de participaciones en ida, y en final, para obtener las totales
     for line in combinado.values:
@@ -172,13 +172,21 @@ def graficar_estaciones_entregadoras_y_receptoras():
     combinado["trips_totales"] = trips_totales
     # En el combinado deje el id de la estacion, con su cantida de viajes de ida, de fin, y totales
     ordenado = combinado.sort_values(by="trips_totales", ascending=False)[:10]
-    ordenado = ordenado[["trips_inicio", "trips_final", "station_id"]]
+    ordenado = ordenado[["Comenzados", "Finalizados", "station_name"]]
     print ordenado
     # El stacked true sirve para que los dos colores se sumen en vez de que se muestren
     # en barritas separadas
     ordenado.plot.barh(stacked=True)
     # Y sino lo dejamos sin nada para que las muestre por separado
     #ordenado.plot.barh()
+    labels = ordenado.station_name.values
+    index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    plt.yticks(index, labels)
+    plt.title("Top estaciones que participan en mas viajes")
+    plt.xlabel("Cantidad de viajes")
+    plt.ylabel('Estacion')
     plt.show()
+
+graficar_estaciones_entregadoras_y_receptoras()
 
 
