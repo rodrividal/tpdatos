@@ -241,10 +241,9 @@ def graficar_boxplot_cant_viajes_por_hora_del_dia():
     plt.ylabel('Cantidad de viajes')
     plt.show()
 
-def graficar_scatter_matter(atributo_1, atributo_2, atributo_3, atributo_4):
-    tripsByDay = pd.DataFrame({"trips": trips.groupby(["DATE"])["trips"].sum()}).reset_index()
-    trips_weather = combinar_trips_weather(weather, tripsByDay)
-    trips_weather = trips_weather [["max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f']]
+def graficar_scatter_matter(lista_atributos):
+    trips_weather = combinar_trips_weather(lista_atributos)
+    trips_weather = trips_weather [lista_atributos]
     scatter_matrix(trips_weather, alpha=0.2, figsize=(6, 6), diagonal='kde')
     plt.show()
 
@@ -254,8 +253,8 @@ def graficar_heatmap_viajes_por_hora_en_cada_dia_semana():
     fig, ax = plt.subplots(figsize=(16,5))       # Sample figsize in inches
     sns.heatmap(trips2,cmap='Oranges', xticklabels = dias)
     sns.plt.title("Viajes por hora en cada dia de semana")
-    
-    sns.plt.show()
+    sns.plt.xlabel("Dia de la semana")
+    sns.plt.show("Hora del dia [h]")
 
 def calcular_top_estaciones_inicio(cantidad_de_estaciones):
     cantidad_de_starts = trips[["start_station_name", "trips"]]
@@ -281,6 +280,7 @@ def graficar_correlacion(lista_atributos):
     cor = data_estadisticas.loc[:,lista_atributos]\
         .corr().abs()
     sns.heatmap(cor,cmap='Oranges')
+    sns.plt.title("Correlacion entre las columnas de weather")
     sns.plt.show()
 
 prepro_trips()
@@ -300,8 +300,8 @@ prepro_weather()
 
 #graficar_scatter_Viajes_durante_Eventos()
 
-lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
-graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de_dias,'Cantidad de viajes segun temperatura y humedad maxima de cada dia')
+#lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
+#graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de_dias,'Cantidad de viajes segun temperatura y humedad maxima de cada dia')
 
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
@@ -339,7 +339,7 @@ graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de
 #graficar_correlacion(lista_atributos
 
 
-#graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
+graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
 
 #graficar_cantidad_dias_lluvia()
 
