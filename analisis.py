@@ -130,7 +130,6 @@ def graficar_barra_cantidad_de_eventos_meteorologicos():
     plt.show()
 
 def graficar_scatter_weather_by_weekday(atributo_1, atributo_2, lista_de_dias, titulo):
-
     trips_weather = combinar_trips_weather()
     trips_weather_weekdays = trips_weather[trips_weather.weekday.isin(lista_de_dias)]
     trips_weather_weekdays.plot.scatter(atributo_1, atributo_2, alpha=0.25, figsize=(12,8),  s=trips_weather_weekdays['cantidad'])
@@ -264,8 +263,8 @@ prepro_weather()
 
 #graficar_barra_promedio_temperaturas_promedio_de_dia_en_cada_mes()
 
-lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
-graficar_scatter_weather_by_weekday('max_temperature_c', 'min_temperature_c', lista_de_dias,'Cantidad de viajes segun temperatura maxima y minima de cada dia')
+#lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
+#graficar_scatter_weather_by_weekday('max_temperature_c', 'min_temperature_c', lista_de_dias,'Cantidad de viajes segun temperatura maxima y minima de cada dia')
 
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
@@ -301,4 +300,6 @@ graficar_scatter_weather_by_weekday('max_temperature_c', 'min_temperature_c', li
 
 #lista_atributos = ['min_temperature_f','min_humidity','min_dew_point_f']
 #graficar_correlacion(lista_atributos
+
+graficar_barra_cantidad_de_eventos_meteorologicos()
 
