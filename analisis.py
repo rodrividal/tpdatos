@@ -300,8 +300,8 @@ prepro_weather()
 
 #graficar_scatter_Viajes_durante_Eventos()
 
-lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
-graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de_dias,'Cantidad de viajes segun temperatura y humedad maxima de cada dia')
+#lista_de_dias = [lunes, martes, miercoles, jueves, viernes, sabado, domingo]
+#graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de_dias,'Cantidad de viajes segun temperatura y humedad maxima de cada dia')
 
 #atributo_1, atributo_2, atributo_3, atributo_4 = "max_temperature_f","min_temperature_f",'precipitation_inches','mean_temperature_f'
 #graficar_scatter_matter( atributo_1, atributo_2, atributo_3, atributo_4 )
@@ -339,7 +339,7 @@ graficar_scatter_weather_by_weekday("max_temperature_c",'max_humidity', lista_de
 #graficar_correlacion(lista_atributos
 
 
-#graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", 'mean_temperature_c', "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
+graficar_correlacion(["mean_temperature_c", "mean_humidity", "mean_dew_point_f", "mean_sea_level_pressure_inches", "mean_visibility_miles", "mean_wind_speed_mph"])
 
 #graficar_cantidad_dias_lluvia()
 
